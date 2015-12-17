@@ -366,7 +366,7 @@ int main(int argc, char* args[])
     SDL_Init(SDL_INIT_EVERYTHING);
     gWindow = SDL_CreateWindow("WolfRL 0.1.0 - Alpha", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT,SDL_WINDOW_SHOWN);
     start:gRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-    Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 2, 2048);
+    //Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 2, 2048);
 
     //SDL_RenderSetLogicalSize(gRenderer,1024,768);
     //float scale = (1280/320);
@@ -444,7 +444,7 @@ int main(int argc, char* args[])
 
 
                                 currentLevel++;
-                                if(currentLevel == 5)
+                                if(currentLevel == 6)
                                 {
                                     hud_redraw(0);
                                     hud_redraw(187);
