@@ -156,29 +156,39 @@ void NPC::logic(Tile *tiles[][32],int jx, int jy,Jugador*jg)
             }
         }
 
-            for(int i=0;i<32;i++)
+
+        }
+        for(int i=0;i<32;i++)
             {
                 for(int j = 0;j<32;j++)
                 {
                     if(tiles[i][j] != NULL)
                     {
                        if(tiles[i][j]->rect.y == this->rect.y && tiles[i][j]->rect.x > this->rect.x && tiles[i][j]->rect.x < jg->rect.x)
-                        if(tiles[i][j]->isBlocking)
+                       {
+                         if(tiles[i][j]->isBlocking)
                             return;
-                        if(tiles[i][j]->rect.y == this->rect.y && tiles[i][j]->rect.x < this->rect.x && tiles[i][j]->rect.x > jg->rect.x)
-                        if(tiles[i][j]->isBlocking)
+                       }
+
+                        else if(tiles[i][j]->rect.y == this->rect.y && tiles[i][j]->rect.x < this->rect.x && tiles[i][j]->rect.x > jg->rect.x)
+                        {
+                         if(tiles[i][j]->isBlocking)
                             return;
-                        if(tiles[i][j]->rect.x == this->rect.x && tiles[i][j]->rect.y < this->rect.y && tiles[i][j]->rect.y > jg->rect.y)
-                        if(tiles[i][j]->isBlocking)
+                       }
+                         if(tiles[i][j]->rect.x == this->rect.x && tiles[i][j]->rect.y < this->rect.y && tiles[i][j]->rect.y > jg->rect.y)
+                        {
+                         if(tiles[i][j]->isBlocking)
                             return;
+                       }
                         if(tiles[i][j]->rect.x == this->rect.x && tiles[i][j]->rect.y > this->rect.y && tiles[i][j]->rect.y < jg->rect.y)
-                        if(tiles[i][j]->isBlocking)
+                        {
+                         if(tiles[i][j]->isBlocking)
                             return;
+                       }
                     }
                 }
             }
-            jg->getHit(5);
-        }
+            jg->getHit(rand()%7+5);
         return;
     }
 
@@ -329,6 +339,37 @@ void NPC::logic(Tile *tiles[][32],int jx, int jy,Jugador*jg)
         }
 
         }
+        for(int i=0;i<32;i++)
+            {
+                for(int j = 0;j<32;j++)
+                {
+                    if(tiles[i][j] != NULL)
+                    {
+                       if(tiles[i][j]->rect.y == this->rect.y && tiles[i][j]->rect.x > this->rect.x && tiles[i][j]->rect.x < jg->rect.x)
+                       {
+                         if(tiles[i][j]->isBlocking)
+                            return;
+                       }
+
+                        else if(tiles[i][j]->rect.y == this->rect.y && tiles[i][j]->rect.x < this->rect.x && tiles[i][j]->rect.x > jg->rect.x)
+                        {
+                         if(tiles[i][j]->isBlocking)
+                            return;
+                       }
+                         if(tiles[i][j]->rect.x == this->rect.x && tiles[i][j]->rect.y < this->rect.y && tiles[i][j]->rect.y > jg->rect.y)
+                        {
+                         if(tiles[i][j]->isBlocking)
+                            return;
+                       }
+                        if(tiles[i][j]->rect.x == this->rect.x && tiles[i][j]->rect.y > this->rect.y && tiles[i][j]->rect.y < jg->rect.y)
+                        {
+                         if(tiles[i][j]->isBlocking)
+                            return;
+                       }
+                    }
+                }
+            }
+            jg->getHit(rand()%7+5);
         return;
     }
 
@@ -457,6 +498,9 @@ void NPC :: getHit(int damage,Jugador*jg)
     {
         this->isDead  = true;
         jg->ammo+=rand()%4+1;
+        jg->hp+=5;
+        if(jg->hp > 100)
+            jg->hp =100;
     }
 
 }
