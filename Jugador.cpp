@@ -1,11 +1,12 @@
 #include "Jugador.h"
 #include "NPC.h"
-#include "Math.h"
+#include"Math.h"
 const int SCREEN_FPS = 60;
 const int SCREEN_TICKS_PER_FRAME = 1000 / SCREEN_FPS;
 
 Jugador::Jugador(list<Entidad*>* entidades,SDL_Renderer* renderer,int x, int y, int hp, int ammo,int weapon, bool hasSMG)
 {
+
     tipo = "Jugador";
     this->hp = hp;
     this->renderer = renderer;
@@ -154,6 +155,15 @@ int Jugador :: logic(Tile *tiles[][32],list<NPC*>&npcs)
         this->getHit(10);
         return 69;
     }
+    if(currentKeyStates[SDL_SCANCODE_N])
+    {
+        return 99;
+    }
+    if(currentKeyStates[SDL_SCANCODE_I])
+    {
+        this->ammo = 99;
+        return 69;
+    }
     if(currentKeyStates[SDL_SCANCODE_Q])
     {
         if(this->selected_weapon == 2)
@@ -163,13 +173,13 @@ int Jugador :: logic(Tile *tiles[][32],list<NPC*>&npcs)
     }
     bool couldHit = false;
     if(currentKeyStates[SDL_SCANCODE_RIGHT])
-        couldHit = attack(1,&npcs);
+        couldHit = attack(1,&npcs,tiles);
     if(currentKeyStates[SDL_SCANCODE_UP])
-        couldHit =attack(2,&npcs);
+        couldHit =attack(2,&npcs,tiles);
     if(currentKeyStates[SDL_SCANCODE_LEFT])
-        couldHit =attack(3,&npcs);
+        couldHit =attack(3,&npcs,tiles);
     if(currentKeyStates[SDL_SCANCODE_DOWN])
-        couldHit =attack(4,&npcs);
+        couldHit =attack(4,&npcs,tiles);
 
     if(couldHit)
         return 1488;
@@ -218,6 +228,28 @@ void Jugador::discover(Tile *tiles[][32],int i, int j,list<NPC*>*npcs)
     }
 }
 
+void Jugador ::alert(Tile *tiles[][32],int i, int j,list<NPC*>*npcs)
+{
+    for(int i = 0;i<32;i++)
+    {
+        for(int j = 0;j<32;j++)
+        {
+          if(tiles[i][j] != NULL)
+            {
+                if(tiles[i][j]->isVisible)
+                {
+                    for(list<NPC*>::iterator e = npcs->begin(); e!=npcs->end(); e++)
+                    {
+                       if((*e)->x== tiles[i][j]->rect.x &&(*e)->y== tiles[i][j]->rect.y)
+                            (*e)->wake();
+
+                    }
+                }
+            }
+        }
+    }
+
+}
 void Jugador ::render(int camX, int camY)
 {
     rect.x = x;
@@ -226,7 +258,7 @@ void Jugador ::render(int camX, int camY)
     SDL_RenderCopyEx(renderer, this->texture, NULL, &rect, 0.0, NULL, SDL_FLIP_NONE);
 }
 
-bool Jugador::attack(int direction,list<NPC*>*NPCs)
+bool Jugador::attack(int direction,list<NPC*>*NPCs, Tile *tiles[][32])
 {
     int fLength = 0;
     int currentTime = 0;
@@ -279,7 +311,7 @@ bool Jugador::attack(int direction,list<NPC*>*NPCs)
             {
                 if((*e)->x== this->rect.x+32 && (*e)->y== this->rect.y)
                 {
-                    (*e)->getHit(20);
+                    (*e)->getHit(15,this);
                     return true;
                 }
             }
@@ -289,7 +321,7 @@ bool Jugador::attack(int direction,list<NPC*>*NPCs)
             {
                 if((*e)->x== this->rect.x && (*e)->y+32== this->rect.y)
                 {
-                    (*e)->getHit(20);
+                    (*e)->getHit(15,this);
                     return true;
                 }
             }
@@ -299,7 +331,7 @@ bool Jugador::attack(int direction,list<NPC*>*NPCs)
             {
                 if((*e)->x== this->rect.x-32 && (*e)->y== this->rect.y)
                 {
-                    (*e)->getHit(20);
+                    (*e)->getHit(15,this);
                     return true;
                 }
             }
@@ -307,9 +339,9 @@ bool Jugador::attack(int direction,list<NPC*>*NPCs)
         case 4:
             for(list<NPC*>::iterator e = NPCs->begin(); e!=NPCs->end(); e++)
             {
-                if((**e).x== this->rect.x && (*e)->y-32== this->rect.y)
+                if((*e)->x== this->rect.x && (*e)->y-32== this->rect.y)
                 {
-                    (*e)->getHit(20);
+                    (*e)->getHit(15,this);
                     return true;
                 }
             }
@@ -317,12 +349,357 @@ bool Jugador::attack(int direction,list<NPC*>*NPCs)
         }
         break;
     case 1:
+        alert(tiles,0,0,NPCs);
         if(this->ammo > 0)
             this->ammo--;
+        else
+            break;
+        while(animation)
+        {
+            switch(framecount)
+            {
+            case 0:
+                this->texture = IMG_LoadTexture(renderer,"BJ_P0.png");
+                break;
+            case 2:
+                this->texture = IMG_LoadTexture(renderer,"BJ_P1.png");
+                break;
+            case 4:
+                this->texture = IMG_LoadTexture(renderer,"BJ_P2.png");
+                break;
+            case 10:
+                this->texture = IMG_LoadTexture(renderer,"BJ_P0.png");
+                break;
+            case 18:
+                this->texture = IMG_LoadTexture(renderer,"BJ_STAND1.png");
+                break;
+            case 30:
+                this->texture = IMG_LoadTexture(renderer,"BJ_STAND.png");
+                break;
+            }
+
+            SDL_QueryTexture(this->texture, NULL, NULL, &rect.w, &rect.h);
+
+            this->render(1,1);
+
+            SDL_RenderPresent(renderer);
+            fLength = SDL_GetTicks();
+            if( (fLength - currentTime) < SCREEN_TICKS_PER_FRAME )
+            {
+                SDL_Delay(SCREEN_TICKS_PER_FRAME - (fLength - currentTime));
+            }
+            if(framecount == 30)
+                animation = false;
+            else
+                framecount++;
+        }
+        switch(direction)
+        {
+        case 1:
+            {
+                bool loopList = false;
+                for(list<NPC*>::iterator e = NPCs->begin(); e!=NPCs->end(); e++)
+                {
+                    if((*e)->x> this->rect.x && (*e)->y== this->rect.y  && !(*e)->isDead)
+                    {
+                        for(int i=0;i<32;i++)
+                        {
+                            for(int j = 0;j<32;j++)
+                            {
+                                if(tiles[i][j] != NULL)
+                                {
+                                   if(tiles[i][j]->rect.y == this->rect.y && tiles[i][j]->rect.x > this->rect.x && tiles[i][j]->rect.x < (*e)->rect.x)
+                                    if(tiles[i][j]->isBlocking)
+                                        loopList = true;
+                                }
+                                if(loopList)
+                                    break;
+                            }
+                            if(loopList)
+                                    break;
+                        }
+                        if(loopList)
+                                    break;
+                        (*e)->getHit(rand()%30+15,this);
+                        return true;
+                    }
+                }
+                }
+            break;
+        case 2:
+            {
+                bool loopList = false;
+                for(list<NPC*>::iterator e = NPCs->begin(); e!=NPCs->end(); e++)
+                {
+                   if((*e)->x== this->rect.x && (*e)->y< this->rect.y && !(*e)->isDead)
+                    {
+                        for(int i=0;i<32;i++)
+                        {
+                            for(int j = 0;j<32;j++)
+                            {
+                                if(tiles[i][j] != NULL)
+                                {
+                                   if(tiles[i][j]->rect.x == this->rect.x && tiles[i][j]->rect.y < this->rect.y && tiles[i][j]->rect.y > (*e)->rect.y)
+                                    if(tiles[i][j]->isBlocking)
+                                        loopList = true;
+                                }
+                                if(loopList)
+                                    break;
+                            }
+                            if(loopList)
+                                    break;
+                        }
+                        if(loopList)
+                                    break;
+                        (*e)->getHit(rand()%30+15,this);
+                        return true;
+                    }
+                }
+                }
+            break;
+        case 3:
+             {
+                bool loopList = false;
+                for(list<NPC*>::iterator e = NPCs->begin(); e!=NPCs->end(); e++)
+                {
+                    if((*e)->x< this->rect.x && (*e)->y== this->rect.y  && !(*e)->isDead)
+                    {
+                        for(int i=0;i<32;i++)
+                        {
+                            for(int j = 0;j<32;j++)
+                            {
+                                if(tiles[i][j] != NULL)
+                                {
+                                   if(tiles[i][j]->rect.y == this->rect.y && tiles[i][j]->rect.x < this->rect.x && tiles[i][j]->rect.x > (*e)->rect.x)
+                                    if(tiles[i][j]->isBlocking)
+                                        loopList = true;
+                                }
+                                if(loopList)
+                                    break;
+                            }
+                            if(loopList)
+                                    break;
+                        }
+                        if(loopList)
+                                    break;
+                        (*e)->getHit(rand()%30+15,this);
+                        return true;
+                    }
+                }
+                }
+            break;
+        case 4:
+            {
+                bool loopList = false;
+                for(list<NPC*>::iterator e = NPCs->begin(); e!=NPCs->end(); e++)
+                {
+                   if((*e)->x== this->rect.x && (*e)->y> this->rect.y && !(*e)->isDead)
+                    {
+                        for(int i=0;i<32;i++)
+                        {
+                            for(int j = 0;j<32;j++)
+                            {
+                                if(tiles[i][j] != NULL)
+                                {
+                                   if(tiles[i][j]->rect.x == this->rect.x && tiles[i][j]->rect.y > this->rect.y && tiles[i][j]->rect.y < (*e)->rect.y)
+                                    if(tiles[i][j]->isBlocking)
+                                        loopList = true;
+                                }
+                                if(loopList)
+                                    break;
+                            }
+                            if(loopList)
+                                    break;
+                        }
+                        if(loopList)
+                                    break;
+                        (*e)->getHit(rand()%30+15,this);
+                        return true;
+                    }
+                }
+                }
+            break;
+        }
         break;
     case 2:
-        if(this->ammo > 0)
-            this->ammo--;
+        if(this->ammo > 1)
+            this->ammo-=2;
+        else
+            break;
+
+        while(animation)
+        {
+            switch(framecount)
+            {
+            case 0:
+                this->texture = IMG_LoadTexture(renderer,"BJ_S0.png");
+                break;
+            case 2:
+                this->texture = IMG_LoadTexture(renderer,"BJ_S1.png");
+                break;
+            case 4:
+                this->texture = IMG_LoadTexture(renderer,"BJ_S2.png");
+                break;
+            case 6:
+                this->texture = IMG_LoadTexture(renderer,"BJ_S0.png");
+                break;
+            case 8:
+                this->texture = IMG_LoadTexture(renderer,"BJ_S2.png");
+                break;
+            case 12:
+                this->texture = IMG_LoadTexture(renderer,"BJ_S2.png");
+                break;
+            case 18:
+                this->texture = IMG_LoadTexture(renderer,"BJ_STAND1.png");
+                break;
+            case 30:
+                this->texture = IMG_LoadTexture(renderer,"BJ_STAND.png");
+                break;
+            }
+
+
+            SDL_QueryTexture(this->texture, NULL, NULL, &rect.w, &rect.h);
+
+            this->render(1,1);
+
+            SDL_RenderPresent(renderer);
+            fLength = SDL_GetTicks();
+            if( (fLength - currentTime) < SCREEN_TICKS_PER_FRAME )
+            {
+                SDL_Delay(SCREEN_TICKS_PER_FRAME - (fLength - currentTime));
+            }
+            if(framecount == 30)
+                animation = false;
+            else
+                framecount++;
+        }
+        switch(direction)
+        {
+        case 1:
+            {
+                bool loopList = false;
+                for(list<NPC*>::iterator e = NPCs->begin(); e!=NPCs->end(); e++)
+                {
+                    if((*e)->x> this->rect.x && (*e)->y== this->rect.y  && !(*e)->isDead)
+                    {
+                        for(int i=0;i<32;i++)
+                        {
+                            for(int j = 0;j<32;j++)
+                            {
+                                if(tiles[i][j] != NULL)
+                                {
+                                   if(tiles[i][j]->rect.y == this->rect.y && tiles[i][j]->rect.x > this->rect.x && tiles[i][j]->rect.x < (*e)->rect.x)
+                                    if(tiles[i][j]->isBlocking)
+                                        loopList = true;
+                                }
+                                if(loopList)
+                                    break;
+                            }
+                            if(loopList)
+                                    break;
+                        }
+                        if(loopList)
+                                    break;
+                         (*e)->getHit(rand()%55+15,this);
+                        return true;
+                    }
+                }
+                }
+            break;
+        case 2:
+            {
+                bool loopList = false;
+                for(list<NPC*>::iterator e = NPCs->begin(); e!=NPCs->end(); e++)
+                {
+                   if((*e)->x== this->rect.x && (*e)->y< this->rect.y && !(*e)->isDead)
+                    {
+                        for(int i=0;i<32;i++)
+                        {
+                            for(int j = 0;j<32;j++)
+                            {
+                                if(tiles[i][j] != NULL)
+                                {
+                                   if(tiles[i][j]->rect.x == this->rect.x && tiles[i][j]->rect.y < this->rect.y && tiles[i][j]->rect.y > (*e)->rect.y)
+                                    if(tiles[i][j]->isBlocking)
+                                        loopList = true;
+                                }
+                                if(loopList)
+                                    break;
+                            }
+                            if(loopList)
+                                    break;
+                        }
+                        if(loopList)
+                                    break;
+                         (*e)->getHit(rand()%55+15,this);
+                        return true;
+                    }
+                }
+                }
+            break;
+        case 3:
+             {
+                bool loopList = false;
+                for(list<NPC*>::iterator e = NPCs->begin(); e!=NPCs->end(); e++)
+                {
+                    if((*e)->x< this->rect.x && (*e)->y== this->rect.y  && !(*e)->isDead)
+                    {
+                        for(int i=0;i<32;i++)
+                        {
+                            for(int j = 0;j<32;j++)
+                            {
+                                if(tiles[i][j] != NULL)
+                                {
+                                   if(tiles[i][j]->rect.y == this->rect.y && tiles[i][j]->rect.x < this->rect.x && tiles[i][j]->rect.x > (*e)->rect.x)
+                                    if(tiles[i][j]->isBlocking)
+                                        loopList = true;
+                                }
+                                if(loopList)
+                                    break;
+                            }
+                            if(loopList)
+                                    break;
+                        }
+                        if(loopList)
+                                    break;
+                         (*e)->getHit(rand()%55+15,this);
+                        return true;
+                    }
+                }
+                }
+            break;
+        case 4:
+            {
+                bool loopList = false;
+                for(list<NPC*>::iterator e = NPCs->begin(); e!=NPCs->end(); e++)
+                {
+                   if((*e)->x== this->rect.x && (*e)->y> this->rect.y && !(*e)->isDead)
+                    {
+                        for(int i=0;i<32;i++)
+                        {
+                            for(int j = 0;j<32;j++)
+                            {
+                                if(tiles[i][j] != NULL)
+                                {
+                                   if(tiles[i][j]->rect.x == this->rect.x && tiles[i][j]->rect.y > this->rect.y && tiles[i][j]->rect.y < (*e)->rect.y)
+                                    if(tiles[i][j]->isBlocking)
+                                        loopList = true;
+                                }
+                                if(loopList)
+                                    break;
+                            }
+                            if(loopList)
+                                    break;
+                        }
+                        if(loopList)
+                                    break;
+                        (*e)->getHit(rand()%55+15,this);
+                        return true;
+                    }
+                }
+                }
+            break;
+        }
         break;
     }
     //printf("\nSWING AND A MISS");

@@ -13,12 +13,12 @@ NPC::NPC(SDL_Renderer* renderer, char tipo,int x,int y)
     case 'g':
         this->hp = 40;
         this->texture = IMG_LoadTexture(renderer, "GUARD.png");
-        this->wait = 8;
+        this->wait = 5;
         break;
     case 's':
         this->hp = 60;
         this->texture = IMG_LoadTexture(renderer, "SS.png");
-        this->wait = 5;
+        this->wait = 2;
         break;
     }
     this->isAwake = false;
@@ -40,7 +40,7 @@ void NPC :: logica()
 {
 
 }
-void NPC::logic(Tile *tiles[][32],int jx, int jy)
+void NPC::logic(Tile *tiles[][32],int jx, int jy,Jugador*jg)
 {
    if(this->isDead || !this->isAwake)
         return;
@@ -49,11 +49,140 @@ void NPC::logic(Tile *tiles[][32],int jx, int jy)
         this->wait--;
         return;
     }
-
     if(this->x+32 == jx || this->x-32 == jx)
         goto ytest;
+    if(this->y == jy)
+        goto ytest;
+    if(this->x == jx)
+    {
+      switch(this->tipo)
+        {
+        case 's':
+        {
+            int fLength = 0;
+            int currentTime = 0;
+            int framecount = 0;
+            bool animation = true;
+            while(animation)
+            {
+                switch(framecount)
+                {
+                case 0:
+                    this->texture = IMG_LoadTexture(renderer,"SS_F0.png");
+                    break;
+                case 2:
+                    this->texture = IMG_LoadTexture(renderer,"SS_F1.png");
+                    break;
+                case 4:
+                    this->texture = IMG_LoadTexture(renderer,"SS_F2.png");
+                    break;
+                case 6:
+                    this->texture = IMG_LoadTexture(renderer,"SS_F0.png");
+                    break;
+                case 8:
+                    this->texture = IMG_LoadTexture(renderer,"SS_F2.png");
+                    break;
+                case 12:
+                    this->texture = IMG_LoadTexture(renderer,"SS_F2.png");
+                    break;
+                case 18:
+                    this->texture = IMG_LoadTexture(renderer,"SS_F0.png");
+                    break;
+                case 30:
+                    this->texture = IMG_LoadTexture(renderer,"SS_F0.png");
+                    break;
+                }
 
-    if(this->x < jx)
+
+                SDL_QueryTexture(this->texture, NULL, NULL, &this->rect.w, &this->rect.h);
+
+                this->render(1,1);
+
+                SDL_RenderPresent(renderer);
+                fLength = SDL_GetTicks();
+                if( (fLength - currentTime) < SCREEN_TICKS_PER_FRAME )
+                {
+                    SDL_Delay(SCREEN_TICKS_PER_FRAME - (fLength - currentTime));
+                }
+                if(framecount == 30)
+                    animation = false;
+                else
+                    framecount++;
+            }
+        }
+            break;
+        case 'g':
+        {
+            int fLength = 0;
+            int currentTime = 0;
+            int framecount = 0;
+            bool animation = true;
+            while(animation)
+            {
+                switch(framecount)
+                {
+                case 0:
+                    this->texture = IMG_LoadTexture(renderer,"GUARD_F0.png");
+                    break;
+                case 2:
+                    this->texture = IMG_LoadTexture(renderer,"GUARD_F1.png");
+                    break;
+                case 4:
+                    this->texture = IMG_LoadTexture(renderer,"GUARD_F2.png");
+                    break;
+                case 18:
+                    this->texture = IMG_LoadTexture(renderer,"GUARD_F0.png");
+                    break;
+                case 30:
+                    this->texture = IMG_LoadTexture(renderer,"GUARD_F0.png");
+                    break;
+                }
+
+
+                SDL_QueryTexture(this->texture, NULL, NULL, &this->rect.w, &this->rect.h);
+
+                this->render(1,1);
+
+                SDL_RenderPresent(renderer);
+                fLength = SDL_GetTicks();
+                if( (fLength - currentTime) < SCREEN_TICKS_PER_FRAME )
+                {
+                    SDL_Delay(SCREEN_TICKS_PER_FRAME - (fLength - currentTime));
+                }
+                if(framecount == 30)
+                    animation = false;
+                else
+                    framecount++;
+            }
+        }
+
+            for(int i=0;i<32;i++)
+            {
+                for(int j = 0;j<32;j++)
+                {
+                    if(tiles[i][j] != NULL)
+                    {
+                       if(tiles[i][j]->rect.y == this->rect.y && tiles[i][j]->rect.x > this->rect.x && tiles[i][j]->rect.x < jg->rect.x)
+                        if(tiles[i][j]->isBlocking)
+                            return;
+                        if(tiles[i][j]->rect.y == this->rect.y && tiles[i][j]->rect.x < this->rect.x && tiles[i][j]->rect.x > jg->rect.x)
+                        if(tiles[i][j]->isBlocking)
+                            return;
+                        if(tiles[i][j]->rect.x == this->rect.x && tiles[i][j]->rect.y < this->rect.y && tiles[i][j]->rect.y > jg->rect.y)
+                        if(tiles[i][j]->isBlocking)
+                            return;
+                        if(tiles[i][j]->rect.x == this->rect.x && tiles[i][j]->rect.y > this->rect.y && tiles[i][j]->rect.y < jg->rect.y)
+                        if(tiles[i][j]->isBlocking)
+                            return;
+                    }
+                }
+            }
+            jg->getHit(5);
+        }
+        return;
+    }
+
+    else if(this->x < jx)
     {
         for(int i = 0;i<32;i++)
         {
@@ -91,11 +220,117 @@ void NPC::logic(Tile *tiles[][32],int jx, int jy)
             this->x+=32;
        return;
     }
-    else
-        goto ytest;
 
-    ytest:if(this->y+32 == jy || this->y-32 == jy)
-            return;
+
+    if(this->y+32 == jy || this->y-32 == jy)
+        return;
+    ytest:if(this->y == jy)
+    {
+      switch(this->tipo)
+        {
+
+        case 's':
+        {
+            int fLength = 0;
+            int currentTime = 0;
+            int framecount = 0;
+            bool animation = true;
+            while(animation)
+            {
+                switch(framecount)
+                {
+                case 0:
+                    this->texture = IMG_LoadTexture(renderer,"SS_F0.png");
+                    break;
+                case 2:
+                    this->texture = IMG_LoadTexture(renderer,"SS_F1.png");
+                    break;
+                case 4:
+                    this->texture = IMG_LoadTexture(renderer,"SS_F2.png");
+                    break;
+                case 6:
+                    this->texture = IMG_LoadTexture(renderer,"SS_F0.png");
+                    break;
+                case 8:
+                    this->texture = IMG_LoadTexture(renderer,"SS_F2.png");
+                    break;
+                case 12:
+                    this->texture = IMG_LoadTexture(renderer,"SS_F2.png");
+                    break;
+                case 18:
+                    this->texture = IMG_LoadTexture(renderer,"SS_F0.png");
+                    break;
+                case 30:
+                    this->texture = IMG_LoadTexture(renderer,"SS_F0.png");
+                    break;
+                }
+
+
+                SDL_QueryTexture(this->texture, NULL, NULL, &this->rect.w, &this->rect.h);
+
+                this->render(1,1);
+
+                SDL_RenderPresent(renderer);
+                fLength = SDL_GetTicks();
+                if( (fLength - currentTime) < SCREEN_TICKS_PER_FRAME )
+                {
+                    SDL_Delay(SCREEN_TICKS_PER_FRAME - (fLength - currentTime));
+                }
+                if(framecount == 30)
+                    animation = false;
+                else
+                    framecount++;
+            }
+        }
+        break;
+        case 'g':
+        {
+            int fLength = 0;
+            int currentTime = 0;
+            int framecount = 0;
+            bool animation = true;
+            while(animation)
+            {
+                switch(framecount)
+                {
+                case 0:
+                    this->texture = IMG_LoadTexture(renderer,"GUARD_F0.png");
+                    break;
+                case 2:
+                    this->texture = IMG_LoadTexture(renderer,"GUARD_F1.png");
+                    break;
+                case 4:
+                    this->texture = IMG_LoadTexture(renderer,"GUARD_F2.png");
+                    break;
+                case 18:
+                    this->texture = IMG_LoadTexture(renderer,"GUARD_F0.png");
+                    break;
+                case 30:
+                    this->texture = IMG_LoadTexture(renderer,"GUARD_F0.png");
+                    break;
+                }
+
+
+                SDL_QueryTexture(this->texture, NULL, NULL, &this->rect.w, &this->rect.h);
+
+                this->render(1,1);
+
+                SDL_RenderPresent(renderer);
+                fLength = SDL_GetTicks();
+                if( (fLength - currentTime) < SCREEN_TICKS_PER_FRAME )
+                {
+                    SDL_Delay(SCREEN_TICKS_PER_FRAME - (fLength - currentTime));
+                }
+                if(framecount == 30)
+                    animation = false;
+                else
+                    framecount++;
+            }
+        }
+
+        }
+        return;
+    }
 
     if(this->y < jy)
     {
@@ -151,7 +386,21 @@ void NPC ::render(int camX, int camY)
     SDL_RenderCopy(renderer,this->texture,NULL,&rect);
     this->wasHit = false;
 }
-void NPC :: getHit(int damage)
+void NPC::wake()
+{
+    isAwake = true;
+    switch(this->tipo)
+        {
+        case 'g':
+            this->texture = IMG_LoadTexture(renderer, "GUARD_F0.png");
+            break;
+        case 's':
+            this->texture = IMG_LoadTexture(renderer, "SS_F0.png");
+            break;
+        }
+        SDL_QueryTexture(this->texture,NULL,NULL,&rect.w,&rect.h);
+}
+void NPC :: getHit(int damage,Jugador*jg)
 {
     if(this->isDead)
         return;
@@ -203,19 +452,11 @@ void NPC :: getHit(int damage)
     this->hp -=damage;
     this->wasHit = true;
     if(!isAwake)
-    {
-        isAwake = true;
-        switch(this->tipo)
-        {
-        case 'g':
-            this->texture = IMG_LoadTexture(renderer, "GUARD_F0.png");
-            break;
-        case 's':
-            this->texture = IMG_LoadTexture(renderer, "SS_F0.png");
-            break;
-        }
-        SDL_QueryTexture(this->texture,NULL,NULL,&rect.w,&rect.h);
-    }
+        wake();
     if(this->hp <= 0)
+    {
         this->isDead  = true;
+        jg->ammo+=rand()%4+1;
+    }
+
 }

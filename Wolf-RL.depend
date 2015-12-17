@@ -417,3 +417,74 @@
 
 1450137789 c:\users\o\documents\github\wolf2d\wolf-rl\strings.h
 
+1448374670 source:c:\users\o\documents\github\wolf-rl\entidad.cpp
+	"Entidad.h"
+
+1448374670 c:\users\o\documents\github\wolf-rl\entidad.h
+	<SDL.h>
+	<SDL_image.h>
+	<iostream>
+	<list>
+
+1450370672 source:c:\users\o\documents\github\wolf-rl\jugador.cpp
+	"Jugador.h"
+	"NPC.h"
+	"Math.h"
+
+1450367753 c:\users\o\documents\github\wolf-rl\jugador.h
+	<list>
+	<fstream>
+	"Personajes.h"
+	"Tile.h"
+
+1450320605 c:\users\o\documents\github\wolf-rl\personajes.h
+	<SDL.h>
+	<SDL_image.h>
+	<iostream>
+	<vector>
+	<map>
+	"Entidad.h"
+
+1449703486 c:\users\o\documents\github\wolf-rl\tile.h
+	<list>
+	<SDL.h>
+	<SDL_image.h>
+	<iostream>
+	<list>
+
+1450368189 c:\users\o\documents\github\wolf-rl\npc.h
+	"Jugador.h"
+	<stdlib.h>
+	<list>
+	"Personajes.h"
+	"NPC.h"
+
+1450370334 source:c:\users\o\documents\github\wolf-rl\main.cpp
+	<SDL.h>
+	<SDL_image.h>
+	<SDL_ttf.h>
+	<SDL_mixer.h>
+	<iostream>
+	<list>
+	<stdlib.h>
+	<sstream>
+	<time.h>
+	"Jugador.h"
+	"Personajes.h"
+	"Tile.h"
+	"WallTile.h"
+	"NPC.h"
+
+1448501564 c:\users\o\documents\github\wolf-rl\walltile.h
+	"Tile.h"
+
+1450319412 source:c:\users\o\documents\github\wolf-rl\personajes.cpp
+	"Personajes.h"
+	"Math.h"
+
+1449703351 source:c:\users\o\documents\github\wolf-rl\tile.cpp
+	"Tile.h"
+
+1450369642 source:c:\users\o\documents\github\wolf-rl\npc.cpp
+	"NPC.h"
+

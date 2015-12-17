@@ -27,7 +27,8 @@ class Jugador : public Personajes
 
         bool tilePos(Tile *tiles[][32], int i,int j);
         void discover(Tile *tiles[][32],int i, int j,list<NPC*>*npcs);
-        bool attack(int direction,list<NPC*>*NPCs);
+        bool attack(int direction,list<NPC*>*NPCs,Tile *tiles[][32]);
+        void alert(Tile *tiles[][32],int i, int j,list<NPC*>*npcs);
         void getHit(int damage);
         void rotateTexture(int mposx, int mposy);
         void render(int camX, int camY);

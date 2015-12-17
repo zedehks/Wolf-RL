@@ -6,7 +6,7 @@
 #include <list>
 #include <stdlib.h>
 #include <sstream>
-
+#include <time.h>
 
 #include "Jugador.h"
 #include "Personajes.h"
@@ -31,6 +31,7 @@ const int SCREEN_TICKS_PER_FRAME = 1000 / SCREEN_FPS;
 
 bool fullscreen = false;
 int currentLevel = 1;
+
 
 SDL_Window* gWindow;
 SDL_Renderer* gRenderer;
@@ -361,6 +362,7 @@ int dunGen(int previousHP,int ammo,int weapon,bool hasSMG)
 
 int main(int argc, char* args[])
 {
+    srand(time(NULL));
     SDL_Init(SDL_INIT_EVERYTHING);
     gWindow = SDL_CreateWindow("WolfRL 0.1.0 - Alpha", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT,SDL_WINDOW_SHOWN);
     start:gRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
@@ -442,6 +444,38 @@ int main(int argc, char* args[])
 
 
                                 currentLevel++;
+                                if(currentLevel == 5)
+                                {
+                                    hud_redraw(0);
+                                    hud_redraw(187);
+                                    SDL_RenderSetViewport(gRenderer,&NarratorWindow);
+                                    SDL_RenderClear(gRenderer);
+                                    SDL_RenderCopy(gRenderer, background, NULL, &rect_background);
+                                    SDL_RenderCopy(gRenderer,tTexture,NULL,&tRect);
+                                    if(jg->selected_weapon != 0)
+                                        SDL_RenderCopy(gRenderer,tTexture2,NULL,&tRect2);
+                                    SDL_RenderCopy(gRenderer,wText,NULL,&wRect);
+
+                                    SDL_RenderPresent(gRenderer);
+                                    while(true)
+                                    {
+                                        while( SDL_PollEvent( &event ))
+                                        {
+                                            switch(event.type)
+                                            {
+                                                case SDL_KEYDOWN:
+                                                    blankSlate();
+                                                   SDL_RenderClear(gRenderer);
+                                                    SDL_SetRenderDrawColor( gRenderer, 0, 0, 0, 0xFF );
+                                                    SDL_RenderSetViewport(gRenderer,NULL);
+                                                    currentLevel = 1;
+                                                    hud_redraw(666);
+                                                    SDL_DestroyRenderer(gRenderer);
+                                                    goto start; //return 0;
+                                            }
+                                        }
+                                    }
+                                }
                                 blankSlate();
 
                                 if(dunGen(jg->hp,jg->ammo,jg->selected_weapon,jg->hasSMG) ==-1)
@@ -454,9 +488,49 @@ int main(int argc, char* args[])
                                 hud_event = 0;
                                 hud_redraw(hud_event);
                             }
-                            scroll(logic_result);
+
                             for(list<NPC*>::iterator e = NPCs.begin(); e!=NPCs.end(); e++)
-                                (*e)->logic(tiles,jg->rect.x,jg->rect.y);
+                            {
+                                (*e)->logic(tiles,jg->rect.x,jg->rect.y,jg);
+                            }
+                            if(jg->hp < 1)
+                            {
+                                hud_redraw(666);
+
+                                 SDL_RenderSetViewport(gRenderer,&NarratorWindow);
+                                //SDL_RenderClear(gRenderer);
+                                SDL_RenderCopy(gRenderer, background, NULL, &rect_background);
+                                hud_redraw(666);
+                                SDL_RenderCopy(gRenderer,tTexture,NULL,&tRect);
+                                SDL_RenderCopy(gRenderer,tTexture,NULL,&tRect);
+                                    if(jg->selected_weapon != 0)
+                                SDL_RenderCopy(gRenderer,wText,NULL,&wRect);
+
+                                SDL_RenderPresent(gRenderer);
+                                while(true)
+                                {
+                                    while( SDL_PollEvent( &event ))
+                                    {
+                                        switch(event.type)
+                                        {
+                                            case SDL_KEYDOWN:
+                                                blankSlate();
+                                               SDL_RenderClear(gRenderer);
+                                                SDL_SetRenderDrawColor( gRenderer, 0, 0, 0, 0xFF );
+                                                SDL_RenderSetViewport(gRenderer,NULL);
+                                                currentLevel = 1;
+                                                hud_redraw(666);
+                                                SDL_DestroyRenderer(gRenderer);
+                                                goto start; //return 0;
+                                        }
+                                    }
+                                }
+
+
+                            }
+                            scroll(logic_result);
+
+
                         }
                         if(event.key.keysym.sym == SDLK_ESCAPE)
                         {
@@ -789,9 +863,11 @@ void hud_redraw(int happening)
     case 1:
         whatHappened = "    Loading Level...";
         break;
-    case 1488:
-
-
+    case 666:
+        whatHappened = "    You Are Dead!";
+        break;
+    case 187:
+        whatHappened = "    You Have Won!";
         break;
     default:
         whatHappened = NULL;

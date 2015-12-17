@@ -24,10 +24,11 @@ class NPC : public Personajes
         SDL_Texture* texture;
         NPC(SDL_Renderer* renderer,char tipo,int x,int y);
         void render(int camX, int camY);
-        void getHit(int damage);
+        void getHit(int damage,Jugador*jg);
+        void wake();
         virtual ~NPC();
         void logica();
-        void logic(Tile *tile[][32],int jx, int jy);
+        void logic(Tile *tile[][32],int jx, int jy,Jugador*jg);
     protected:
     private:
 };
