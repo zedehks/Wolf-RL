@@ -459,7 +459,7 @@
 	"Personajes.h"
 	"NPC.h"
 
-1450376895 source:c:\users\o\documents\github\wolf-rl\main.cpp
+1450377097 source:c:\users\o\documents\github\wolf-rl\main.cpp
 	<SDL.h>
 	<SDL_image.h>
 	<SDL_ttf.h>

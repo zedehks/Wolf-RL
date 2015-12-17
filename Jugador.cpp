@@ -522,6 +522,7 @@ bool Jugador::attack(int direction,list<NPC*>*NPCs, Tile *tiles[][32])
         }
         break;
     case 2:
+        alert(tiles,0,0,NPCs);
         if(this->ammo > 1)
             this->ammo-=2;
         else
